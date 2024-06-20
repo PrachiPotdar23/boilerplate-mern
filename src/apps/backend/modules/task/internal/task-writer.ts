@@ -11,7 +11,8 @@ import {
 import TaskRepository from './store/task-repository';
 import TaskReader from './task-reader';
 import TaskUtil from './task-util';
-import { Types } from 'mongoose'; // Import Types from mongoose
+import { Types } from 'mongoose';
+import SharedTaskRepository from './store/share-task-repository'; // Import SharedTaskRepository
 
 export default class TaskWriter {
   public static async createTask(params: CreateTaskParams): Promise<Task> {
@@ -73,6 +74,7 @@ export default class TaskWriter {
     // Convert user IDs to Mongoose ObjectId type
     const objectIdUserIds = userIds.map(id => new Types.ObjectId(id));
   
+    // Update the main task's shared_with field
     const task = await TaskRepository.findOneAndUpdate(
       {
         _id: taskId,
@@ -89,6 +91,16 @@ export default class TaskWriter {
     if (!task) {
       throw new TaskNotFoundError(taskId);
     }
+  
+    // Create entries in the shared_tasks collection for each user
+    await Promise.all(
+      objectIdUserIds.map(async (userId) => {
+        await SharedTaskRepository.create({
+          taskId: new Types.ObjectId(taskId),
+          userId: userId,
+        });
+      })
+    );
   
     return TaskUtil.convertTaskDBToTask(task);
   }

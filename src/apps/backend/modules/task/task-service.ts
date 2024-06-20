@@ -1,6 +1,8 @@
 // task-service.ts
 import TaskReader from './internal/task-reader';
 import TaskWriter from './internal/task-writer';
+import { Types } from 'mongoose';
+import TaskRepository from './internal/store/task-repository';
 import {
   CreateTaskParams,
   DeleteTaskParams,
@@ -34,5 +36,10 @@ export default class TaskService {
 
   public static async shareTask(params: ShareTaskParams): Promise<Task> {
     return TaskWriter.shareTask(params);
+  }
+
+  public static async taskExists(taskId: Types.ObjectId): Promise<boolean> {
+    const task = await TaskRepository.findOne({ _id: taskId, active: true });
+    return !!task;
   }
 }

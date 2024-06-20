@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import {
   GetAllTaskParams,
   GetTaskParams,
@@ -5,7 +6,7 @@ import {
   TaskNotFoundError,
   PaginationParams,
 } from '../types';
-
+import SharedTaskRepository from './store/share-task-repository';
 import TaskRepository from './store/task-repository';
 import TaskUtil from './task-util';
 
@@ -41,4 +42,22 @@ export default class TaskReader {
 
     return tasksDb.map((taskDb) => TaskUtil.convertTaskDBToTask(taskDb));
   }
+  public static async getSharedTasks(params: {
+    accountId: Types.ObjectId;
+  }): Promise<Task[]> {
+    const sharedTasksDb = await SharedTaskRepository.find({
+      userId: params.accountId,
+    });
+    const tasks = await Promise.all(
+      sharedTasksDb.map(async (sharedTask) => {
+        const taskDb = await TaskRepository.findOne({
+          _id: sharedTask.taskId,
+          active: true,
+        });
+        return taskDb ? TaskUtil.convertTaskDBToTask(taskDb) : null;
+      }),
+    );
+    return tasks.filter((task) => task !== null) as Task[];
+  }
 }
+
