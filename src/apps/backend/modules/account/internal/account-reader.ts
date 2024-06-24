@@ -114,4 +114,8 @@ export default class AccountReader {
 
     return false;
   }
+  public static async getAllActiveUsers(): Promise<Account[]> {
+    const accountDbs = await AccountRepository.find({ active: true });
+    return accountDbs.map(AccountUtil.convertAccountDBToAccount);
+  }
 }

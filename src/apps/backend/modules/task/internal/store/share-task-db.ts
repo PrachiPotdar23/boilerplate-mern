@@ -11,21 +11,21 @@ export const SharedTaskDbSchema: Schema = new Schema<SharedTaskDB>(
     taskId: {
       type: Schema.Types.ObjectId,
       ref: 'Task',
-      index: true,
       required: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      index: true,
       required: true,
     },
   },
   {
-    collection: 'shared_tasks',
+    collection: 'shared-tasks',
     timestamps: {
       createdAt: 'createdAt',
       updatedAt: 'updatedAt',
     },
   },
 );
+
+SharedTaskDbSchema.index({ taskId: 1, userId: 1 }, { unique: true });

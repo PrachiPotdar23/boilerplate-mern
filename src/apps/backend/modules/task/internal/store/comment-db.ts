@@ -4,7 +4,8 @@ export interface CommentDB {
   _id: Types.ObjectId;
   task: Types.ObjectId;
   user: Types.ObjectId;
-  text: string;
+  comment: string;
+  active: boolean;
 }
 
 export const CommentDbSchema: Schema = new Schema<CommentDB>(
@@ -13,22 +14,28 @@ export const CommentDbSchema: Schema = new Schema<CommentDB>(
       type: Schema.Types.ObjectId,
       ref: 'Task',
       required: true,
+      index: true
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'Account',
       required: true,
+      index: true
     },
-    text: {
+    comment: {
       type: String,
-      required: true,
+      required: true
     },
+    active: {
+      type: Boolean,
+      default: true
+    }
   },
   {
     collection: 'comments',
     timestamps: {
       createdAt: 'createdAt',
-      updatedAt: 'updatedAt',
-    },
-  },
+      updatedAt: 'updatedAt'
+    }
+  }
 );

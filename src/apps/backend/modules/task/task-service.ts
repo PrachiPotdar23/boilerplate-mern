@@ -42,4 +42,9 @@ export default class TaskService {
     const task = await TaskRepository.findOne({ _id: taskId, active: true });
     return !!task;
   }
+
+  public static async getSharedTasks(params: { accountId: string }): Promise<Task[]> {
+    
+    return TaskReader.getSharedTasks({ accountId: new Types.ObjectId(params.accountId) });
+}
 }

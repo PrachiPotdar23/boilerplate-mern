@@ -47,13 +47,14 @@ export default class TaskReader {
   }): Promise<Task[]> {
     const sharedTasksDb = await SharedTaskRepository.find({
       userId: params.accountId,
-    });
+    }).populate('taskId', 'title description').populate('userId', 'name email');
+  
     const tasks = await Promise.all(
       sharedTasksDb.map(async (sharedTask) => {
         const taskDb = await TaskRepository.findOne({
           _id: sharedTask.taskId,
           active: true,
-        });
+        }).populate('account', 'name');
         return taskDb ? TaskUtil.convertTaskDBToTask(taskDb) : null;
       }),
     );

@@ -12,6 +12,7 @@ import { Logger, CustomLoggerTransport } from './modules/logger';
 import { PasswordResetTokenServer } from './modules/password-reset-token';
 import { TaskServer } from './modules/task';
 
+import userRouter from './modules/task/rest-api/user-router';
 const isDevEnv = process.env.NODE_ENV === 'development';
 
 export default class App {
@@ -60,8 +61,13 @@ export default class App {
       new AccessTokenServer(),
       new PasswordResetTokenServer(),
       new TaskServer(),
+      userRouter,
     ].forEach((server) => {
-      app.use('/', server.server);
+      if (typeof server === 'function') {
+        app.use('/', server);
+      } else {
+        app.use('/', server.server);
+      }
     });
 
     return app;

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from '../../components/modal';
-import {
+import Checkbox from '../../components/checkbox/checkbox';
+import{
   Button,
   VerticalStackLayout,
   Spinner,
@@ -23,6 +24,7 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
 }) => {
   const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -43,9 +45,17 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleShare = (userId: string) => {
-    handleShareTask(userId);
+  const handleShare = () => {
+    handleShareTask(selectedUsers.join(','));
     setIsOpen(false);
+  };
+
+  const handleCheckboxChange = (userId: string, isChecked: boolean) => {
+    if (isChecked) {
+      setSelectedUsers((prevUsers) => [...prevUsers, userId]);
+    } else {
+      setSelectedUsers((prevUsers) => prevUsers.filter((id) => id!== userId));
+    }
   };
 
   return (
@@ -64,28 +74,33 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
         />
       </div>
       <VerticalStackLayout gap={4}>
-        <LabelLarge>Select a user to share the task with:</LabelLarge>
-        {isLoading ? (
+        <LabelLarge>Select users to share the task with:</LabelLarge>
+        {isLoading? (
           <Spinner />
-        ) : users.length > 0 ? (
+        ) : users.length > 0? (
           users.map((user) => (
             <div
               key={user.id}
               className="flex items-center justify-between border-b pb-2 mb-2"
             >
-              <ParagraphSmall>{user.name}</ParagraphSmall>
-              <Button
-                onClick={() => handleShare(user.id)}
-                kind={ButtonKind.PRIMARY}
-                size={ButtonSize.MINI}
-              >
-                Share
-              </Button>
+              <Checkbox
+                onChange={(isChecked) => handleCheckboxChange(user.id, isChecked)}
+                checked={selectedUsers.includes(user.id)}
+              />
+              <ParagraphSmall>{user.username}</ParagraphSmall>
             </div>
           ))
         ) : (
           <ParagraphSmall>No users available</ParagraphSmall>
         )}
+        <Button
+          onClick={handleShare}
+          kind={ButtonKind.PRIMARY}
+          size={ButtonSize.MINI}
+          disabled={selectedUsers.length === 0}
+        >
+          Share
+        </Button>
       </VerticalStackLayout>
     </Modal>
   );
