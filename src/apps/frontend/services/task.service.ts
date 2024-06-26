@@ -84,4 +84,37 @@ export default class TaskService extends APIService {
       return new ApiResponse(undefined, new ApiError(e.response.data as JsonObject));
     }
   };
+  shareTask = async (taskId: string, userId: string): Promise<ApiResponse<Task>> => {
+    try {
+      const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
+      const response = await this.apiClient.post(
+        `/tasks/${taskId}/share`, { userId },
+        {
+          headers: {
+            Authorization: `Bearer ${userAccessToken.token}`,
+          },
+        },
+      );
+      return new ApiResponse(new Task(response.data as JsonObject), undefined);
+    } catch (e) {
+      return new ApiResponse(undefined, new ApiError(e.response.data as JsonObject));
+    }
+  };
+  getSharedTasks = async (taskId): Promise<ApiResponse<Task[]>> => {
+    try {
+      const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
+      const response = await this.apiClient.get(
+        `/tasks/${taskId}shared`,
+        {
+          headers: {
+            Authorization: `Bearer ${userAccessToken.token}`,
+          },
+        },
+      );
+      const tasks: Task[] = (response.data as JsonObject[]).map((taskData) => new Task(taskData));
+      return new ApiResponse(tasks, undefined);
+    } catch (e) {
+      return new ApiResponse(undefined, new ApiError(e.response.data as JsonObject));
+    }
+  };
 }

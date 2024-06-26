@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-
 import {
   Button,
   HeadingSmall,
@@ -13,7 +12,6 @@ import {
 import { AsyncError } from '../../types';
 import { ButtonKind, ButtonSize } from '../../types/button';
 import { Task } from '../../types/task';
-
 import TaskModal from './task-modal';
 import ShareTaskModal from './share-task-modal';
 import useTaskForm from './tasks-form.hook';
@@ -63,14 +61,37 @@ const TaskSection: React.FC<TaskSectionProps> = ({
     setShareTaskModal(true);
   };
 
-  const handleShareTask = async (userId: string) => {
+  const handleShareTask = async (userIds: string[]) => {
     if (!selectedTask) return;
+  
     try {
-      await axios.post(`/api/tasks/${selectedTask.id}/share`, {
-        userIds: [userId],
-      });
+      const accessTokenJson = localStorage.getItem('access-token');
+      const accessTokenObj = JSON.parse(accessTokenJson);
+  
+      const token = accessTokenObj?.token;
+  
+      if (!token) {
+        throw new Error('No token available');
+      }
+  
+      console.log('Token:', token);
+      const taskId = selectedTask.id;
+      const response = await axios.post(
+        `/tasks/${taskId}/share`,
+        { userIds },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      console.log('Selected Task:', selectedTask);
+      console.log('Response:', response.data);
+  
       onShareSuccess();
     } catch (error) {
+      console.error('Error sharing task:', error);
       if (onError) onError(error);
     }
   };

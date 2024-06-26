@@ -1,18 +1,14 @@
-// task-writer.ts
 import {
   CreateTaskParams,
   DeleteTaskParams,
   Task,
   TaskNotFoundError,
   UpdateTaskParams,
-  ShareTaskParams,
 } from '../types';
 
 import TaskRepository from './store/task-repository';
 import TaskReader from './task-reader';
 import TaskUtil from './task-util';
-import { Types } from 'mongoose';
-import SharedTaskRepository from './store/share-task-repository'; // Import SharedTaskRepository
 
 export default class TaskWriter {
   public static async createTask(params: CreateTaskParams): Promise<Task> {
@@ -21,7 +17,6 @@ export default class TaskWriter {
       description: params.description,
       title: params.title,
       active: true,
-      shared_with: params.shared_with || [], // Include shared_with if provided
     });
     return TaskUtil.convertTaskDBToTask(createdTask);
   }
@@ -29,18 +24,17 @@ export default class TaskWriter {
   public static async updateTask(params: UpdateTaskParams): Promise<Task> {
     const task = await TaskRepository.findOneAndUpdate(
       {
-        _id: params.taskId,
         account: params.accountId,
+        _id: params.taskId,
         active: true,
       },
       {
         $set: {
           description: params.description,
           title: params.title,
-          shared_with: params.shared_with || [], // Update shared_with if provided
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!task) {
@@ -64,44 +58,7 @@ export default class TaskWriter {
         $set: {
           active: false,
         },
-      }
-    );
-  }
-
-  public static async shareTask(params: ShareTaskParams): Promise<Task> {
-    const { taskId, accountId, userIds } = params;
-  
-    // Convert user IDs to Mongoose ObjectId type
-    const objectIdUserIds = userIds.map(id => new Types.ObjectId(id));
-  
-    // Update the main task's shared_with field
-    const task = await TaskRepository.findOneAndUpdate(
-      {
-        _id: taskId,
-        account: accountId,
       },
-      {
-        $addToSet: {
-          shared_with: { $each: objectIdUserIds },
-        },
-      },
-      { new: true }
     );
-  
-    if (!task) {
-      throw new TaskNotFoundError(taskId);
-    }
-  
-    // Create entries in the shared_tasks collection for each user
-    await Promise.all(
-      objectIdUserIds.map(async (userId) => {
-        await SharedTaskRepository.create({
-          taskId: new Types.ObjectId(taskId),
-          userId: userId,
-        });
-      })
-    );
-  
-    return TaskUtil.convertTaskDBToTask(task);
   }
 }

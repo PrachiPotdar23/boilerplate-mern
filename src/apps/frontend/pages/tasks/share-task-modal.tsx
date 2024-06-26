@@ -1,8 +1,9 @@
+// share-task-modal.tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from '../../components/modal';
 import Checkbox from '../../components/checkbox/checkbox';
-import{
+import {
   Button,
   VerticalStackLayout,
   Spinner,
@@ -14,7 +15,7 @@ import { ButtonKind, ButtonSize } from '../../types/button';
 interface ShareTaskModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  handleShareTask: (userId: string) => void;
+  handleShareTask: (userIds: string[]) => void;
 }
 
 const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
@@ -46,7 +47,7 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
   }, [isOpen]);
 
   const handleShare = () => {
-    handleShareTask(selectedUsers.join(','));
+    handleShareTask(selectedUsers);
     setIsOpen(false);
   };
 
@@ -54,7 +55,7 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
     if (isChecked) {
       setSelectedUsers((prevUsers) => [...prevUsers, userId]);
     } else {
-      setSelectedUsers((prevUsers) => prevUsers.filter((id) => id!== userId));
+      setSelectedUsers((prevUsers) => prevUsers.filter((id) => id !== userId));
     }
   };
 
@@ -75,9 +76,9 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
       </div>
       <VerticalStackLayout gap={4}>
         <LabelLarge>Select users to share the task with:</LabelLarge>
-        {isLoading? (
+        {isLoading ? (
           <Spinner />
-        ) : users.length > 0? (
+        ) : users.length > 0 ? (
           users.map((user) => (
             <div
               key={user.id}
