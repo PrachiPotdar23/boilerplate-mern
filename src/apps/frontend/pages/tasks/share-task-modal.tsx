@@ -1,69 +1,94 @@
-// share-task-modal.tsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Modal from '../../components/modal';
-import Checkbox from '../../components/checkbox/checkbox';
+
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
   Button,
-  VerticalStackLayout,
+  FormControl,
+  Input,
   Spinner,
-  LabelLarge,
-  ParagraphSmall,
+  VerticalStackLayout,
 } from '../../components';
-import { ButtonKind, ButtonSize } from '../../types/button';
+import Modal from '../../components/modal';
+import { useTaskContext } from '../../contexts';
+import { ButtonKind, ButtonSize, ButtonType } from '../../types/button';
 
 interface ShareTaskModalProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  handleShareTask: (userIds: string[]) => void;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+  taskId: string;
 }
 
 const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
-  isOpen,
-  setIsOpen,
-  handleShareTask,
+  isModalOpen,
+  setIsModalOpen,
+  taskId,
 }) => {
-  const [users, setUsers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const {
+    getAccounts,
+    isGetAccountsLoading,
+    shareTask,
+    accounts,
+    setAccounts,
+  } = useTaskContext();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
+    const fetchAccounts = async () => {
       try {
-        const response = await axios.get('/api/users');
-        console.log('Fetched users:', response.data); // Debugging log
-        setUsers(response.data);
+        const response = await getAccounts(1, 10, searchQuery);
+        setAccounts(response); // Ensure response is correctly handled
       } catch (error) {
-        console.error('Failed to fetch users', error);
-      } finally {
-        setIsLoading(false);
+        toast.error('Failed to fetch accounts');
       }
     };
-
-    if (isOpen) {
-      fetchUsers();
+  
+    if (isModalOpen) {
+      fetchAccounts();
     }
-  }, [isOpen]);
+  }, [searchQuery, isModalOpen]); // Ensure correct dependencies
 
-  const handleShare = () => {
-    handleShareTask(selectedUsers);
-    setIsOpen(false);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
-  const handleCheckboxChange = (userId: string, isChecked: boolean) => {
-    if (isChecked) {
-      setSelectedUsers((prevUsers) => [...prevUsers, userId]);
-    } else {
-      setSelectedUsers((prevUsers) => prevUsers.filter((id) => id !== userId));
+  const handleAccountSelection = (accountId: string) => {
+    setSelectedAccounts((prev) => {
+      if (prev.includes(accountId)) {
+        return prev.filter((id) => id!== accountId);
+      } else {
+        return [...prev, accountId];
+      }
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (selectedAccounts.length === 0) {
+      toast.error('Please select at least one account to share the task with');
+      return;
+    }
+    try {
+      await Promise.all(
+        selectedAccounts.map((accountId) => shareTask(taskId, accountId)),
+      );
+      toast.success('Task shared successfully');
+      setIsModalOpen(false);
+      setSelectedAccounts([]);
+      setSearchQuery('');
+    } catch (error) {
+      toast.error('Failed to share task');
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+    <Modal isOpen={isModalOpen}>
       <div className="absolute right-1 top-1 sm:right-5 sm:top-5">
         <Button
-          onClick={() => setIsOpen(false)}
+          onClick={() => {
+            setIsModalOpen(false);
+            setSelectedAccounts([]);
+            setSearchQuery('');
+          }}
           kind={ButtonKind.TERTIARY}
           startEnhancer={
             <img
@@ -72,35 +97,46 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
               className="fill-current"
             />
           }
-        />
+        ></Button>
       </div>
-      <VerticalStackLayout gap={4}>
-        <LabelLarge>Select users to share the task with:</LabelLarge>
-        {isLoading ? (
+
+      <VerticalStackLayout gap={5}>
+        <FormControl label="Search Accounts" error={''}>
+          <Input
+            type="text"
+            placeholder="Search by name or username"
+            value={searchQuery}
+            onChange={handleSearch}
+            error={''}
+          />
+        </FormControl>
+
+        {isGetAccountsLoading? (
           <Spinner />
-        ) : users.length > 0 ? (
-          users.map((user) => (
-            <div
-              key={user.id}
-              className="flex items-center justify-between border-b pb-2 mb-2"
-            >
-              <Checkbox
-                onChange={(isChecked) => handleCheckboxChange(user.id, isChecked)}
-                checked={selectedUsers.includes(user.id)}
+        ) : (
+          accounts.map((account) => (
+            <div key={account.id} className="flex items-center">
+              <input
+                type="checkbox"
+                id={`account-${account.id}`}
+                checked={selectedAccounts.includes(account.id)}
+                onChange={() => handleAccountSelection(account.id)}
               />
-              <ParagraphSmall>{user.username}</ParagraphSmall>
+              <label htmlFor={`account-${account.id}`} className="ml-2">
+                <div>{account.displayName}</div>
+                <div className="text-sm text-gray-500">{account.username}</div>
+              </label>
             </div>
           ))
-        ) : (
-          <ParagraphSmall>No users available</ParagraphSmall>
         )}
+
         <Button
-          onClick={handleShare}
+          onClick={handleSubmit}
           kind={ButtonKind.PRIMARY}
-          size={ButtonSize.MINI}
-          disabled={selectedUsers.length === 0}
+          size={ButtonSize.DEFAULT}
+          type={ButtonType.SUBMIT}
         >
-          Share
+          Share Task
         </Button>
       </VerticalStackLayout>
     </Modal>

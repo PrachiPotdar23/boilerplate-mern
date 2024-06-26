@@ -9,7 +9,7 @@ export default class ShareTaskRouter extends ApplicationRouter {
     const sharedTaskController = new SharedTaskController();
 
     router.use(accessAuthMiddleware); // Ensure middleware is correctly applied
-    router.post('/:taskId/share', sharedTaskController.shareTask);
-    router.get('/:taskId/shared', sharedTaskController.getSharedTasks);
+    router.post('tasks/:taskId/share', sharedTaskController.shareTask);
+    router.get('/shared-tasks', sharedTaskController.getSharedTasks);
 }
 }

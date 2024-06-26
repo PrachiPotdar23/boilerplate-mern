@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+
 import {
   Button,
   HeadingSmall,
@@ -12,13 +13,13 @@ import {
 import { AsyncError } from '../../types';
 import { ButtonKind, ButtonSize } from '../../types/button';
 import { Task } from '../../types/task';
+
 import TaskModal from './task-modal';
-import ShareTaskModal from './share-task-modal';
 import useTaskForm from './tasks-form.hook';
-import axios from 'axios';
 
 interface TaskSectionProps {
   handleDeleteTask: (taskId: string) => void;
+  handleShareTask: (taskId: string) => void;
   isGetTasksLoading: boolean;
   onError?: (error: AsyncError) => void;
   tasks: Task[];
@@ -26,22 +27,16 @@ interface TaskSectionProps {
 
 const TaskSection: React.FC<TaskSectionProps> = ({
   handleDeleteTask,
+  handleShareTask,
   isGetTasksLoading,
   onError,
   tasks,
 }) => {
   const [updateTaskModal, setUpdateTaskModal] = useState(false);
-  const [shareTaskModal, setShareTaskModal] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const onSuccess = () => {
     toast.success('Task has been updated successfully');
     setUpdateTaskModal(false);
-  };
-
-  const onShareSuccess = () => {
-    toast.success('Task has been shared successfully');
-    setShareTaskModal(false);
   };
 
   const { updateTaskFormik, setFormikFieldValue } = useTaskForm({
@@ -50,50 +45,10 @@ const TaskSection: React.FC<TaskSectionProps> = ({
   });
 
   const handleTaskOperation = (task: Task) => {
-    setUpdateTaskModal(true);
+    setUpdateTaskModal(!updateTaskModal);
     setFormikFieldValue(updateTaskFormik, 'title', task.title);
     setFormikFieldValue(updateTaskFormik, 'id', task.id);
     setFormikFieldValue(updateTaskFormik, 'description', task.description);
-  };
-
-  const handleShareTaskOperation = (task: Task) => {
-    setSelectedTask(task);
-    setShareTaskModal(true);
-  };
-
-  const handleShareTask = async (userIds: string[]) => {
-    if (!selectedTask) return;
-  
-    try {
-      const accessTokenJson = localStorage.getItem('access-token');
-      const accessTokenObj = JSON.parse(accessTokenJson);
-  
-      const token = accessTokenObj?.token;
-  
-      if (!token) {
-        throw new Error('No token available');
-      }
-  
-      console.log('Token:', token);
-      const taskId = selectedTask.id;
-      const response = await axios.post(
-        `/tasks/${taskId}/share`,
-        { userIds },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      console.log('Selected Task:', selectedTask);
-      console.log('Response:', response.data);
-  
-      onShareSuccess();
-    } catch (error) {
-      console.error('Error sharing task:', error);
-      if (onError) onError(error);
-    }
   };
 
   if (isGetTasksLoading) {
@@ -146,7 +101,7 @@ const TaskSection: React.FC<TaskSectionProps> = ({
                 Delete
               </Button>
               <Button
-                onClick={() => handleShareTaskOperation(task)}
+                onClick={() => handleShareTask(task.id)}
                 kind={ButtonKind.SECONDARY}
                 size={ButtonSize.DEFAULT}
                 startEnhancer={
@@ -165,11 +120,6 @@ const TaskSection: React.FC<TaskSectionProps> = ({
         isOpen={updateTaskModal}
         setIsOpen={setUpdateTaskModal}
         btnText={'Update Task'}
-      />
-      <ShareTaskModal
-        isOpen={shareTaskModal}
-        setIsOpen={setShareTaskModal}
-        handleShareTask={handleShareTask}
       />
     </VerticalStackLayout>
   );
