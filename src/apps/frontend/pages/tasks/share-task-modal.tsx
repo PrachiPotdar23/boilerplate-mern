@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+
 import toast from 'react-hot-toast';
 import {
   Button,
@@ -11,6 +12,7 @@ import {
 import Modal from '../../components/modal';
 import { useTaskContext } from '../../contexts';
 import { ButtonKind, ButtonSize, ButtonType } from '../../types/button';
+import ScrollView from '../../components/scrollview/scrollview';
 
 interface ShareTaskModalProps {
   isModalOpen: boolean;
@@ -110,25 +112,27 @@ const ShareTaskModal: React.FC<ShareTaskModalProps> = ({
             error={''}
           />
         </FormControl>
-
+        <ScrollView>
         {isGetAccountsLoading? (
           <Spinner />
         ) : (
           accounts.map((account) => (
-            <div key={account.id} className="flex items-center">
+            <div key={account.accountId} className="flex items-center">
+              
               <input
                 type="checkbox"
-                id={`account-${account.id}`}
-                checked={selectedAccounts.includes(account.id)}
-                onChange={() => handleAccountSelection(account.id)}
+                id={`account-${account.accountId}`}
+                checked={selectedAccounts.includes(account.accountId)}
+                onChange={() => handleAccountSelection(account.accountId)}
               />
-              <label htmlFor={`account-${account.id}`} className="ml-2">
-                <div>{account.displayName}</div>
+              <label htmlFor={`account-${account.accountId}`} className="ml-2">
+                <div>{account.firstName}</div>
                 <div className="text-sm text-gray-500">{account.username}</div>
               </label>
             </div>
           ))
         )}
+        </ScrollView>
 
         <Button
           onClick={handleSubmit}

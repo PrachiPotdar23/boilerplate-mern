@@ -1,4 +1,4 @@
-import { Schema, Types } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 
 export interface CommentDB {
   _id: Types.ObjectId;
@@ -6,36 +6,40 @@ export interface CommentDB {
   user: Types.ObjectId;
   comment: string;
   active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export const CommentDbSchema: Schema = new Schema<CommentDB>(
+const CommentSchema: Schema = new Schema<CommentDB>(
   {
     task: {
       type: Schema.Types.ObjectId,
       ref: 'Task',
       required: true,
-      index: true
+      index: true,
     },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'Account',
       required: true,
-      index: true
+      index: true,
     },
     comment: {
       type: String,
-      required: true
+      required: true,
     },
     active: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   {
     collection: 'comments',
     timestamps: {
       createdAt: 'createdAt',
-      updatedAt: 'updatedAt'
-    }
+      updatedAt: 'updatedAt',
+    },
   }
 );
+
+export const CommentModel = model<CommentDB>('Comment', CommentSchema);

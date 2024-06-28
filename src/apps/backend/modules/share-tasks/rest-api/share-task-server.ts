@@ -1,12 +1,12 @@
 import { ApplicationServer } from '../../application';
-import ShareTaskRouter from './shared-task-router';
+import ShareTaskRouter from './share-task-router';
 
 export default class ShareTaskServer extends ApplicationServer {
   configure(): void {
     const { server } = this;
     const shareRouter = new ShareTaskRouter();
 
-    server.use('/share-tasks', shareRouter.router);
+    server.use('/tasks', shareRouter.router); // Ensure /api is prefixed
   }
 }
-export {ShareTaskServer}
+export { ShareTaskServer }

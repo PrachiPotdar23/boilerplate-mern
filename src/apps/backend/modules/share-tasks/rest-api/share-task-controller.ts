@@ -1,5 +1,3 @@
-//shared-task-controller.ts
-
 import { Request, Response } from 'express';
 import SharedTaskService from '../internal/share-task-service';
 import { Types } from 'mongoose';
@@ -13,8 +11,8 @@ interface ExtendedRequest extends Request {
 export class SharedTaskController {
   shareTask = applicationController(
     async (req: ExtendedRequest, res: Response) => {
-      const { taskId } = req.params; // taskId from URL params
-      const { accountId } = req.body; // accountId from request body
+       // taskId from URL params
+      const { accountId,taskId } = req.body; // accountId from request body
       const taskObjectId = new Types.ObjectId(taskId);
       const accountObjectId = new Types.ObjectId(accountId);
 
@@ -27,8 +25,8 @@ export class SharedTaskController {
 
   getSharedTasks = applicationController(
     async (req: ExtendedRequest, res: Response) => {
-      const accountId = req.accountId;
-
+      const accountId = req.params.accountId;
+      console.log("accountid",accountId);
       if (!accountId) {
         res
           .status(HttpStatusCodes.BAD_REQUEST)

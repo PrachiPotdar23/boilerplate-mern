@@ -4,7 +4,7 @@ import { HttpStatusCodes } from '../http';
 export class ShareTask {
     id: string;
     taskId: string;
-    userId: string;
+    accountId: string;
 }
 export enum TaskErrorCode {
     NOT_FOUND = 'TASK_ERR_01',

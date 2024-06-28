@@ -7,7 +7,9 @@ import React, {
 
 import TaskService from '../services/task.service';
 import { ApiResponse, AsyncError } from '../types';
-import { Task, Account, SharedTask } from '../types/task';
+import { Task} from '../types/task';
+import { Account } from '../types';
+import { SharedTask } from '../types/shared-task';
 
 import useAsync from './async.hook';
 
@@ -42,7 +44,7 @@ type TaskContextType = {
     size: number,
     search?: string,
   ) => Promise<Account[]>;
-  getSharedTasks: () => Promise<SharedTask[]>;
+  getSharedTasks: (accountId:string) => Promise<SharedTask[]>;
   updatedTask: Task;
 };
 
@@ -77,8 +79,8 @@ const getAccountsFn = async (
 ): Promise<ApiResponse<Account[]>> =>
   taskService.getAccounts(page, size, search);
 
-const getSharedTasksFn = async (): Promise<ApiResponse<SharedTask[]>> =>
-  taskService.getSharedTasks();
+const getSharedTasksFn = async (accountId:string): Promise<ApiResponse<SharedTask[]>> =>
+  taskService.getSharedTasks(accountId);
 
 export const TaskProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [tasksList, setTasksList] = useState<Task[]>([]);
