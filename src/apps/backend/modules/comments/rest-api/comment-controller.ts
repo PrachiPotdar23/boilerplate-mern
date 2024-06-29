@@ -1,47 +1,62 @@
 import { Request, Response } from 'express';
-import { CommentService } from '../comment-service';
-import { CommentSerializer } from './comment-serializer';
-import { Types } from 'mongoose';
-
-// Extend Request interface to include user property
-interface AuthenticatedRequest extends Request {
-  user: {
-    _id: string; // or Types.ObjectId if you're using ObjectId for user ID
-    username: string; // include other properties as needed
-  };
-}
+import CommentService from '../comment-service';
+import { HttpStatusCodes } from '../../http';
+import { applicationController } from '../../application';
+import { serializeCommentAsJSON } from './comment-serializer';
+import { CreateCommentParams, EditCommentParams, GetCommentsParams } from '../types';
 
 export class CommentController {
-  private commentService: CommentService;
+  createComment = applicationController(
+    async (req: Request<{}, {}, CreateCommentParams>, res: Response) => {
+      const comment = await CommentService.createComment({
+        taskId: req.body.taskId,
+        userId: req.body.userId,
+        comment: req.body.comment,
+      });
+      const commentJSON = serializeCommentAsJSON(comment);
+      res.status(HttpStatusCodes.CREATED).send(commentJSON);
+    },
+  );
 
-  constructor() {
-    this.commentService = new CommentService();
-  }
+  editComment = applicationController(
+    async (req: Request<{}, {}, EditCommentParams>, res: Response) => {
+      const comment = await CommentService.editComment({
+        commentId: req.body.commentId,
+        comment: req.body.comment,
+      });
+      if (comment) {
+        const commentJSON = serializeCommentAsJSON(comment);
+        res.status(HttpStatusCodes.OK).send(commentJSON);
+      } else {
+        res.status(HttpStatusCodes.NOT_FOUND).send({ error: 'Comment not found' });
+      }
+    },
+  );
 
-  public createComment = async (req: AuthenticatedRequest, res: Response) => {
-    const { taskId, comment } = req.body;
-    const userId = req.user._id; // Assuming user is added to request object by authentication middleware
-    const createdComment = await this.commentService.createComment(new Types.ObjectId(taskId), new Types.ObjectId(userId), comment);
-    res.status(201).json(CommentSerializer.serialize(createdComment));
-  };
+  deleteComment = applicationController(
+    async (req: Request<{ commentId: string }>, res: Response) => {
+      await CommentService.deleteComment(req.params.commentId);
+      res.status(HttpStatusCodes.NO_CONTENT).send();
+    },
+  );
 
-  public getCommentsByTask = async (req: Request, res: Response) => {
-    const { taskId } = req.params;
-    const comments = await this.commentService.getCommentsByTask(new Types.ObjectId(taskId));
-    res.status(200).json(CommentSerializer.serializeMany(comments));
-  };
+  getComments = applicationController(
+    async (req: Request<GetCommentsParams>, res: Response) => {
+      const comments = await CommentService.getComments({ taskId: req.params.taskId });
+      const commentsJSON = comments.map(serializeCommentAsJSON);
+      res.status(HttpStatusCodes.OK).send(commentsJSON);
+    },
+  );
 
-  public updateComment = async (req: AuthenticatedRequest, res: Response) => {
-    const { commentId } = req.params;
-    const { comment } = req.body;
-    const updatedComment = await this.commentService.updateComment(new Types.ObjectId(commentId), comment);
-    res.status(200).json(CommentSerializer.serialize(updatedComment));
-  };
-
-  public deleteComment = async (req: AuthenticatedRequest, res: Response) => {
-    const { commentId } = req.params;
-    const deletedComment = await this.commentService.deleteComment(new Types.ObjectId(commentId));
-    res.status(200).json(CommentSerializer.serialize(deletedComment));
-  };
+  replyToComment = applicationController(
+    async (req: Request<{}, {}, CreateCommentParams>, res: Response) => {
+      const comment = await CommentService.replyToComment({
+        taskId: req.body.taskId,
+        userId: req.body.userId,
+        comment: req.body.comment,
+      });
+      const commentJSON = serializeCommentAsJSON(comment);
+      res.status(HttpStatusCodes.CREATED).send(commentJSON);
+    },
+  );
 }
-export default CommentController;

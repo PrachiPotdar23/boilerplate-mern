@@ -1,28 +1,25 @@
-import { CommentRepository } from './internal/store/comment-repository';
-import { Types } from 'mongoose';
-import { CommentDB } from './internal/store/comment-db';
+import CommentReader from './internal/comment-reader';
+import CommentWriter from './internal/comment-writer';
+import { CreateCommentParams, EditCommentParams, GetCommentsParams, Comment } from './types';
 
-export class CommentService {
-  private commentRepository: CommentRepository;
-
-  constructor() {
-    this.commentRepository = new CommentRepository();
+export default class CommentService {
+  public static async createComment(params: CreateCommentParams): Promise<Comment> {
+    return CommentWriter.createComment(params);
   }
 
-  public async createComment(taskId: Types.ObjectId, userId: Types.ObjectId, comment: string): Promise<CommentDB> {
-    return await this.commentRepository.create({ task: taskId, user: userId, comment, active: true });
+  public static async editComment(params: EditCommentParams): Promise<Comment | null> {
+    return CommentWriter.editComment(params);
   }
 
-  public async getCommentsByTask(taskId: Types.ObjectId): Promise<CommentDB[]> {
-    return await this.commentRepository.findByTaskId(taskId);
+  public static async deleteComment(commentId: string): Promise<void> {
+    return CommentWriter.deleteComment(commentId);
   }
 
-  public async updateComment(commentId: Types.ObjectId, comment: string): Promise<CommentDB | null> {
-    return await this.commentRepository.update(commentId, { comment });
+  public static async getComments(params: GetCommentsParams): Promise<Comment[]> {
+    return CommentReader.getComments(params);
   }
 
-  public async deleteComment(commentId: Types.ObjectId): Promise<CommentDB | null> {
-    return await this.commentRepository.softDelete(commentId);
+  public static async replyToComment(params: CreateCommentParams): Promise<Comment> {
+    return CommentWriter.replyToComment(params);
   }
 }
-export default CommentService;

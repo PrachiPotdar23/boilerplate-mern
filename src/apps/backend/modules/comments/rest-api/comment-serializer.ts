@@ -1,22 +1,13 @@
-import { CommentDB } from '../internal/store/comment-db';
+import { Comment } from '../types';
 
-export class CommentSerializer {
-  public static serialize(comment: CommentDB) {
-    return {
-      id: comment._id,
-      task: comment.task,
-      user: {
-        id: comment.user._id,
-        //username: comment.user.username, // Assuming user has a username field
-      },
-      comment: comment.comment,
-      active: comment.active,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-    };
-  }
-
-  public static serializeMany(comments: CommentDB[]) {
-    return comments.map(this.serialize);
-  }
-}
+export const serializeCommentAsJSON = (comment: Comment): object => {
+  return {
+    id: comment.id,
+    taskId: comment.taskId,
+    userId: comment.userId,
+    comment: comment.comment,
+    active: comment.active,
+    createdAt: comment.createdAt,
+    updatedAt: comment.updatedAt,
+  };
+};

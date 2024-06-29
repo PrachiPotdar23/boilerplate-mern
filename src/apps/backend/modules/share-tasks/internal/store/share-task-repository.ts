@@ -1,4 +1,3 @@
-//share-task-repository.ts
 import { ApplicationRepository } from '../../../application';
 import { SharedTaskDB, SharedTaskDbSchema } from './share-task-db';
 

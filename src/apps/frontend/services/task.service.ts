@@ -149,7 +149,6 @@ export default class TaskService extends APIService {
     try {
       const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
       const response = await this.apiClient.get(`/tasks/shared-tasks/${accountId}`, {
-        //params:accountId,
         headers: {
           Authorization: `Bearer ${userAccessToken.token}`,
         },
@@ -166,4 +165,5 @@ export default class TaskService extends APIService {
       );
     }
   };
+  
 }

@@ -1,20 +1,42 @@
 import { ApplicationError } from '../application';
 import { HttpStatusCodes } from '../http';
 
-export class ShareTask {
-    id: string;
-    taskId: string;
-    accountId: string;
+// Define the SharedTask class
+export class SharedTask {
+  id: string;
+  taskId: string;
+  accountId: string;
+
+  constructor(id: string, taskId: string, accountId: string) {
+    this.id = id;
+    this.taskId = taskId;
+    this.accountId = accountId;
+  }
 }
-export enum TaskErrorCode {
-    NOT_FOUND = 'TASK_ERR_01',
+
+// Define the parameters for getting shared tasks
+export type GetSharedTasksParams = {
+  accountId: string;
+};
+
+// Define the parameters for creating a shared task
+export type CreateSharedTaskParams = {
+  accountId: string;
+  taskId: string;
+};
+
+// Enum for shared task error codes
+export enum ShareTaskErrorCode {
+  NOT_FOUND = 'SHARE_TASK_ERR_01',
+}
+
+// Custom error class for shared task not found
+export class ShareTaskNotFoundError extends ApplicationError {
+  code: ShareTaskErrorCode;
+
+  constructor(taskId: string) {
+    super(`Shared Task with taskId ${taskId} not found.`);
+    this.code = ShareTaskErrorCode.NOT_FOUND;
+    this.httpStatusCode = HttpStatusCodes.NOT_FOUND;
   }
-export class TaskNotFoundError extends ApplicationError {
-    code: TaskErrorCode;
-  
-    constructor(taskId: string) {
-      super(`Task with taskId ${taskId} not found.`);
-      this.code = TaskErrorCode.NOT_FOUND;
-      this.httpStatusCode = HttpStatusCodes.NOT_FOUND;
-    }
-  }
+}

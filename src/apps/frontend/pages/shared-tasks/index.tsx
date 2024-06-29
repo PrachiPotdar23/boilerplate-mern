@@ -1,16 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useMemo} from 'react';
 import { VerticalStackLayout, HeadingMedium } from '../../components';
 import { useTaskContext } from '../../contexts';
+
 const SharedTasks: React.FC = () => {
-  const { sharedTasksList, getSharedTasks, isGetSharedTasksLoading } =
-    useTaskContext();
-    const userAccessToken = JSON.parse(localStorage.getItem('access-token'));
-    useEffect(() => {
-      getSharedTasks(userAccessToken.accountId);
-    }, [getSharedTasks]);
-    
-    console.log('sharedTasksList:', sharedTasksList);
-    console.log('isGetSharedTasksLoading:', isGetSharedTasksLoading);
+  const { getSharedTasks, isGetSharedTasksLoading, sharedTasksList } = useTaskContext();
+  const userAccessToken = JSON.parse(localStorage.getItem('access-token'));
+  const accountId = useMemo(() => userAccessToken.accountId, [userAccessToken]);
+
+  const getSharedTasksCallback = useCallback(() => {
+    getSharedTasks(accountId);
+  }, [getSharedTasks, accountId]);
+
+  useEffect(() => {
+    getSharedTasksCallback();
+  }, [accountId]);
+
+  console.log('sharedTasksList:', sharedTasksList);
+  console.log('isGetSharedTasksLoading:', isGetSharedTasksLoading);
 
   return (
     <div className="mx-auto h-screen max-w-screen-2xl overflow-y-auto p-4 md:p-6 2xl:p-10">

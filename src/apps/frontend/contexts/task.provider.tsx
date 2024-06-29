@@ -79,8 +79,8 @@ const getAccountsFn = async (
 ): Promise<ApiResponse<Account[]>> =>
   taskService.getAccounts(page, size, search);
 
-const getSharedTasksFn = async (accountId:string): Promise<ApiResponse<SharedTask[]>> =>
-  taskService.getSharedTasks(accountId);
+// const getSharedTasksFn = async (accountId:string): Promise<ApiResponse<SharedTask[]>> =>
+//   taskService.getSharedTasks(accountId);
 
 export const TaskProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [tasksList, setTasksList] = useState<Task[]>([]);
@@ -92,6 +92,12 @@ export const TaskProvider: React.FC<PropsWithChildren> = ({ children }) => {
     setTasksList(response.data);
     return response;
   };
+  const getSharedTasksFn = async (accountId:string): Promise<ApiResponse<SharedTask[]>> =>{
+    const response=await taskService.getSharedTasks(accountId);
+    console.log("taskprovider",response);
+    setSharedTasksList(response.data);
+    return response;
+  }
 
   const {
     asyncCallback: getTasks,
@@ -125,12 +131,14 @@ export const TaskProvider: React.FC<PropsWithChildren> = ({ children }) => {
     error: shareTaskError,
     isLoading: isShareTaskLoading,
   } = useAsync(shareTaskFn);
-
+  
   const { asyncCallback: getAccounts, isLoading: isGetAccountsLoading } =
     useAsync(getAccountsFn);
 
   const { asyncCallback: getSharedTasks, isLoading: isGetSharedTasksLoading } =
     useAsync(getSharedTasksFn);
+
+  
 
   return (
     <TaskContext.Provider

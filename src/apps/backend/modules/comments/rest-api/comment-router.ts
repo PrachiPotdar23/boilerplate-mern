@@ -1,22 +1,18 @@
-import { Router } from 'express';
-import CommentController from './comment-controller';
+import { accessAuthMiddleware } from '../../access-token';
+import { ApplicationRouter } from '../../application';
+import { CommentController } from './comment-controller';
 
-class CommentRouter {
-  public router: Router;
-  private commentController: CommentController;
+export default class CommentRouter extends ApplicationRouter {
+  configure(): void {
+    const { router } = this;
+    const commentController = new CommentController();
 
-  constructor() {
-    this.router = Router();
-    this.commentController = new CommentController();
-    this.configureRoutes();
-  }
+    router.use(accessAuthMiddleware);
 
-  private configureRoutes() {
-    this.router.post('/', this.commentController.createComment);
-    this.router.get('/task/:taskId', this.commentController.getCommentsByTask);
-    this.router.put('/:commentId', this.commentController.updateComment);
-    this.router.delete('/:commentId', this.commentController.deleteComment);
+    router.post('/comments', commentController.createComment);
+    router.put('/comments/:commentId', commentController.editComment);
+    router.delete('/comments/:commentId', commentController.deleteComment);
+    router.get('/tasks/:taskId/comments', commentController.getComments);
+    router.post('/comments/reply', commentController.replyToComment);
   }
 }
-
-export default CommentRouter;

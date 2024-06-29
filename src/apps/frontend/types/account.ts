@@ -7,6 +7,9 @@ export class Account {
   username: string;
 
   constructor(json: JsonObject) {
+    if (!json ||!json.id) {
+      throw new Error('Invalid JSON object');
+    }
     this.accountId = json.id as string;
     this.firstName = json.firstName as string;
     this.lastName = json.lastName as string;

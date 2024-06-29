@@ -1,43 +1,31 @@
 import { Request, Response } from 'express';
-import SharedTaskService from '../internal/share-task-service';
-import { Types } from 'mongoose';
+import SharedTaskService from '../share-task-service';
 import { HttpStatusCodes } from '../../http';
 import { applicationController } from '../../application';
-
-interface ExtendedRequest extends Request {
-  accountId?: string;
-}
+import { serializeSharedTaskAsJSON } from './share-task-serializer';
+import { CreateSharedTaskParams } from '../types';
 
 export class SharedTaskController {
   shareTask = applicationController(
-    async (req: ExtendedRequest, res: Response) => {
-       // taskId from URL params
-      const { accountId,taskId } = req.body; // accountId from request body
-      const taskObjectId = new Types.ObjectId(taskId);
-      const accountObjectId = new Types.ObjectId(accountId);
+    async (req: Request<{}, {}, CreateSharedTaskParams>, res: Response) => {
+      const sharedTaskDB = await SharedTaskService.shareTask({
+        taskId: req.body.taskId,
+        accountId: req.body.accountId,
+      });
+      const sharedTaskJSON = serializeSharedTaskAsJSON(sharedTaskDB);
 
-      await SharedTaskService.shareTask(taskObjectId, accountObjectId);
-      res
-        .status(HttpStatusCodes.CREATED)
-        .send({ message: 'Task shared successfully' });
+      res.status(HttpStatusCodes.CREATED).send(sharedTaskJSON);
     },
   );
 
   getSharedTasks = applicationController(
-    async (req: ExtendedRequest, res: Response) => {
-      const accountId = req.params.accountId;
-      console.log("accountid",accountId);
-      if (!accountId) {
-        res
-          .status(HttpStatusCodes.BAD_REQUEST)
-          .send({ message: 'Account ID is missing' });
-        return;
-      }
+    async (req: Request<{ accountId: string }>, res: Response) => {
+      const sharedTasksDB = await SharedTaskService.getSharedTask({
+        accountId: req.params.accountId,
+      });
+      const sharedTasksJSON = sharedTasksDB.map(serializeSharedTaskAsJSON);
 
-      const sharedTasks = await SharedTaskService.getSharedTasks(
-        new Types.ObjectId(accountId),
-      );
-      res.status(HttpStatusCodes.OK).send(sharedTasks);
+      res.status(HttpStatusCodes.OK).send(sharedTasksJSON);
     },
   );
 }
