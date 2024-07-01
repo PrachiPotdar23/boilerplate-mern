@@ -153,6 +153,7 @@ export default class TaskService extends APIService {
           Authorization: `Bearer ${userAccessToken.token}`,
         },
       });
+      console.log('API Response:', response.data); // Add this line
       const sharedTasks: SharedTask[] = (response.data as JsonObject[]).map(
         (sharedTaskData) => new SharedTask(sharedTaskData),
       );
@@ -165,5 +166,6 @@ export default class TaskService extends APIService {
       );
     }
   };
+  
   
 }

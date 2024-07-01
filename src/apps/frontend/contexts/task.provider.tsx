@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 
 import TaskService from '../services/task.service';
-import { ApiResponse, AsyncError } from '../types';
+import { ApiError, ApiResponse, AsyncError } from '../types';
 import { Task} from '../types/task';
 import { Account } from '../types';
 import { SharedTask } from '../types/shared-task';
@@ -92,12 +92,18 @@ export const TaskProvider: React.FC<PropsWithChildren> = ({ children }) => {
     setTasksList(response.data);
     return response;
   };
-  const getSharedTasksFn = async (accountId:string): Promise<ApiResponse<SharedTask[]>> =>{
-    const response=await taskService.getSharedTasks(accountId);
-    console.log("taskprovider",response);
-    setSharedTasksList(response.data);
-    return response;
-  }
+  const getSharedTasksFn = async (accountId: string): Promise<ApiResponse<SharedTask[]>> => {
+    try {
+      const response = await taskService.getSharedTasks(accountId);
+      console.log("taskprovider", response);
+      setSharedTasksList(response.data);
+      return response;
+    } catch (e) {
+      console.error("Error in getSharedTasksFn:", e);
+      return new ApiResponse([], new ApiError(e));
+    }
+  };
+  
 
   const {
     asyncCallback: getTasks,
