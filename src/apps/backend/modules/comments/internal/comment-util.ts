@@ -6,7 +6,7 @@ export default class CommentUtil {
     return new Comment(
       commentDb._id.toString(),
       commentDb.task.toString(),
-      commentDb.user.toString(),
+      commentDb.account.toString(),
       commentDb.comment,
       commentDb.active,
       commentDb.createdAt,

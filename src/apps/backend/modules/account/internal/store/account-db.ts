@@ -1,4 +1,4 @@
-import { Schema, Types } from 'mongoose';
+import { Schema, Types,model } from 'mongoose';
 
 interface PhoneNumber {
   countryCode: string;
@@ -54,3 +54,4 @@ export const AccountDbSchema: Schema = new Schema<AccountDB>(
     },
   },
 );
+export const AccountDbModel = model<AccountDB>('Accounts', AccountDbSchema);

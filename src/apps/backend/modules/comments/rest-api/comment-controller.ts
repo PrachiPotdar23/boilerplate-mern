@@ -10,7 +10,7 @@ export class CommentController {
     async (req: Request<{}, {}, CreateCommentParams>, res: Response) => {
       const comment = await CommentService.createComment({
         taskId: req.body.taskId,
-        userId: req.body.userId,
+        accountId: req.body.accountId,
         comment: req.body.comment,
       });
       const commentJSON = serializeCommentAsJSON(comment);
@@ -52,7 +52,7 @@ export class CommentController {
     async (req: Request<{}, {}, CreateCommentParams>, res: Response) => {
       const comment = await CommentService.replyToComment({
         taskId: req.body.taskId,
-        userId: req.body.userId,
+        accountId: req.body.accountId,
         comment: req.body.comment,
       });
       const commentJSON = serializeCommentAsJSON(comment);

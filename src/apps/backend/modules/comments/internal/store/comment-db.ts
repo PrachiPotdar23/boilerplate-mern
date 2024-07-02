@@ -2,7 +2,7 @@ import { Schema, Types, Document, model } from 'mongoose';
 
 export interface CommentDB extends Document {
   task: Types.ObjectId;
-  user: Types.ObjectId;
+  account: Types.ObjectId;
   comment: string;
   active: boolean;
   createdAt: Date;
@@ -17,7 +17,7 @@ export const CommentSchema: Schema<CommentDB> = new Schema<CommentDB>(
       required: true,
       index: true,
     },
-    user: {
+    account: {
       type: Schema.Types.ObjectId,
       ref: 'Account',
       required: true,

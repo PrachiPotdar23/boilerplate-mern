@@ -5,7 +5,7 @@ import { HttpStatusCodes } from '../http';
 export class Comment {
   id: string;
   taskId: string;
-  userId: string;
+  accountId: string;
   comment: string;
   active: boolean;
   createdAt: Date;
@@ -14,7 +14,7 @@ export class Comment {
   constructor(
     id: string,
     taskId: string,
-    userId: string,
+    accountId: string,
     comment: string,
     active: boolean,
     createdAt: Date,
@@ -22,7 +22,7 @@ export class Comment {
   ) {
     this.id = id;
     this.taskId = taskId;
-    this.userId = userId;
+    this.accountId = accountId;
     this.comment = comment;
     this.active = active;
     this.createdAt = createdAt;
@@ -38,7 +38,7 @@ export type GetCommentsParams = {
 // Define the parameters for creating a comment
 export type CreateCommentParams = {
   taskId: string;
-  userId: string;
+  accountId: string;
   comment: string;
 };
 

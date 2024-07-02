@@ -1,7 +1,11 @@
+//backend\modules\share-tasks\rest-api\share-task-serializer.ts
 import { SharedTask } from '../types';
-import { SharedTaskDB } from '../internal/store/share-task-db';
-import ShareTaskUtil from '../internal/share-task-util';
 
-export const serializeSharedTaskAsJSON = (sharedTaskDb: SharedTaskDB): SharedTask => {
-  return ShareTaskUtil.convertSharedTaskDBToSharedTask(sharedTaskDb);
-};
+export const serializeSharedTaskAsJSON = (sharedTask: SharedTask): unknown => ({
+  id: sharedTask.id,
+  task: sharedTask.task,
+  account: sharedTask.account,
+  title: sharedTask.title,
+  description: sharedTask.description,
+  username: sharedTask.username,
+});

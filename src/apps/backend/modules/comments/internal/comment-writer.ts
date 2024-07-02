@@ -7,7 +7,7 @@ export default class CommentWriter {
   public static async createComment(params: CreateCommentParams): Promise<Comment> {
     const commentDb = await CommentRepository.create({
       task: new Types.ObjectId(params.taskId),
-      user: new Types.ObjectId(params.userId),
+      account: new Types.ObjectId(params.accountId),
       comment: params.comment,
       active: true,
     });

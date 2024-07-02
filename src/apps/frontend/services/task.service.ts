@@ -103,7 +103,7 @@ export default class TaskService extends APIService {
   shareTask = async (taskId: string, accountId: string): Promise<ApiResponse<void>> => {
     try {
       const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
-      const response = await this.apiClient.post(`/tasks/share`, { accountId,taskId }, {
+      const response = await this.apiClient.post(`/tasks/shared-tasks`, { accountId,taskId }, {
         headers: {
           Authorization: `Bearer ${userAccessToken.token}`,
         },
@@ -147,23 +147,17 @@ export default class TaskService extends APIService {
 
   getSharedTasks = async (accountId: string): Promise<ApiResponse<SharedTask[]>> => {
     try {
-      const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
-      const response = await this.apiClient.get(`/tasks/shared-tasks/${accountId}`, {
-        headers: {
-          Authorization: `Bearer ${userAccessToken.token}`,
-        },
+      const response = await this.apiClient.get(`/tasks/shared-tasks/`, {
+        params: { accountId },
       });
-      console.log('API Response:', response.data); // Add this line
-      const sharedTasks: SharedTask[] = (response.data as JsonObject[]).map(
-        (sharedTaskData) => new SharedTask(sharedTaskData),
-      );
+      if (response.status !== 200) {
+        throw new Error(`Error fetching shared tasks: ${response.status}`);
+      }
+      const sharedTasks: SharedTask[] = response.data.map((sharedTaskData) => new SharedTask(sharedTaskData));
       return new ApiResponse(sharedTasks, undefined);
     } catch (e) {
       console.error("Error fetching shared tasks:", e);
-      return new ApiResponse(
-        undefined,
-        new ApiError(e.response?.data as JsonObject),
-      );
+      return new ApiResponse(undefined, new ApiError(e));
     }
   };
   

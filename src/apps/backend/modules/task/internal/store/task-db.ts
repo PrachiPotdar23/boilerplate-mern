@@ -1,4 +1,4 @@
-import { Schema, Types } from 'mongoose';
+import { Schema, Types,model } from 'mongoose';
 
 export interface TaskDB {
   _id: Types.ObjectId;
@@ -39,3 +39,4 @@ export const TaskDbSchema: Schema = new Schema<TaskDB>(
     },
   },
 );
+export const TaskDbModel = model<TaskDB>('tasks', TaskDbSchema);

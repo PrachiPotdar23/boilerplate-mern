@@ -4,7 +4,7 @@ export const serializeCommentAsJSON = (comment: Comment): object => {
   return {
     id: comment.id,
     taskId: comment.taskId,
-    userId: comment.userId,
+    accountId: comment.accountId,
     comment: comment.comment,
     active: comment.active,
     createdAt: comment.createdAt,
