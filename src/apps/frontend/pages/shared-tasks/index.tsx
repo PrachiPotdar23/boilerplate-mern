@@ -1,11 +1,13 @@
-import React, { useEffect, useCallback, useMemo, useState } from 'react';
+// frontend/pages/shared-tasks/index.tsx
+
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { VerticalStackLayout, HeadingMedium } from '../../components';
 import { useTaskContext } from '../../contexts';
-import { Task } from '../../types/task';
+import CommentList from '../tasks/comment-show';
+import AddComment from '../tasks/add-comment';
 
 const SharedTasks: React.FC = () => {
   const { getSharedTasks, isGetSharedTasksLoading, sharedTasksList, getTasks } = useTaskContext();
-  
   const userAccessToken = JSON.parse(localStorage.getItem('access-token'));
   const accountId = useMemo(() => userAccessToken.accountId, [userAccessToken]);
 
@@ -17,20 +19,7 @@ const SharedTasks: React.FC = () => {
   useEffect(() => {
     getSharedTasksCallback();
   }, [accountId]);
-
-  console.log(accountId);
-  console.log('sharedTasksList:', sharedTasksList);
-  console.log('isGetSharedTasksLoading:', isGetSharedTasksLoading);
-
-  const [commentOpen, setCommentOpen] = useState({});
-
-  const handleCommentClick = (taskId: string) => {
-    setCommentOpen((prevOpen) => ({ ...prevOpen, [taskId]: !prevOpen[taskId] }));
-  };
-
-  const handleReplyComment = (commentId: number) => {
-    console.log(`Replying to comment ${commentId}`);
-  };
+  console.log("share task se",sharedTasksList);
 
   return (
     <div className="mx-auto h-screen max-w-screen-2xl overflow-y-auto p-4 md:p-6 2xl:p-10">
@@ -51,49 +40,20 @@ const SharedTasks: React.FC = () => {
                       Title: {sharedTask.task.title || 'No title'}
                     </h3>
                     <p>Description: {sharedTask.task.description || 'No description'}</p>
+                    <p className="text-sm text-gray-500">
+                      shared by: {sharedTask.task.account?.firstName + ' ' + sharedTask.task.account?.lastName}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Shared at: {new Date(sharedTask.task.createdAt).toLocaleString()}
+                    </p>
+                    <CommentList taskId={sharedTask.task._id} /> 
+                    
                   </>
+                  
                 )}
-                <p className="text-sm text-gray-500">
-                  shared by: {sharedTask.sharedBy ? sharedTask.sharedBy.firstName : 'Unknown'}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Shared at: {new Date(sharedTask.sharedAt).toLocaleString()}
-                </p>
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={() => handleCommentClick(sharedTask.task ? sharedTask.task.taskId : '')}
-                >
-                  Comment
-                </button>
-                {commentOpen[sharedTask.task ? sharedTask.task.taskId : ''] && (
-                  <div className="mt-4">
-                    <h4>Comments</h4>
-                    <ul>
-                      <li>
-                        <p>Comment 1</p>
-                        <button
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                          onClick={() => handleReplyComment(1)}
-                        >
-                          Reply
-                        </button>
-                      </li>
-                      <li>
-                        <p>Comment 2</p>
-                        <button
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                          onClick={() => handleReplyComment(2)}
-                        >
-                          Reply
-                        </button>
-                      </li>
-                    </ul>
-                    <form>
-                      <input type="text" placeholder="Add new comment" />
-                      <button>Post</button>
-                    </form>
-                  </div>
-                )}
+                
+                <AddComment taskId={sharedTask.task._id} />
+                
               </div>
             ))
           )}
@@ -103,6 +63,5 @@ const SharedTasks: React.FC = () => {
   );
 };
 
-console.log("index.tsx", Task);
 
 export default SharedTasks;

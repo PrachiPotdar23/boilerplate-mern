@@ -1,20 +1,21 @@
 import SharedTaskRepository from './store/share-task-repository';
 import { GetSharedTasksParams } from '../types';
-import { SharedTask } from '../types';
-import SharedTaskUtil from './share-task-util';
-
+import { SharedTaskDB } from './store/share-task-db';
 export default class ShareTaskReader {
-  public static async getSharedTasks(params: GetSharedTasksParams): Promise<SharedTask[]> {
+  public static async getSharedTasks(params: GetSharedTasksParams): Promise<SharedTaskDB[]> {
     const sharedTasksDb = await SharedTaskRepository.find({
       account: params.accountId,
     }).populate({
       path: 'task',
-      select: 'title description' // Specify fields to fetch from Task
-    }).populate({
-      path: 'account',
-      select: 'username' // Specify fields to fetch from Account
+      populate: {
+        path: 'account',
+        model: 'accounts',
+      },
     });
-    return sharedTasksDb.map((sharedTaskDb) => SharedTaskUtil.convertSharedTaskDBToSharedTask(sharedTaskDb));
+    // let parsedTasks=sharedTasksDb.map(task => ({
+    //   ...task.toObject(), // Convert Mongoose Document to plain JS object
+    //   task: JSON.parse(task.task) // Parse the task string into a JSON object
+    // }));
+    return sharedTasksDb;
   }
-  
 }

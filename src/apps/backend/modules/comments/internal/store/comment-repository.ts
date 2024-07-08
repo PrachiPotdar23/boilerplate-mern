@@ -1,9 +1,9 @@
 import { ApplicationRepository } from '../../../application';
-import { CommentDB, CommentSchema } from './comment-db';
+import { CommentDB, CommentDbSchema } from './comment-db';
 
 const CommentRepository = ApplicationRepository<CommentDB>(
   'Comment',
-  CommentSchema,
+  CommentDbSchema,
 );
 
 export default CommentRepository;

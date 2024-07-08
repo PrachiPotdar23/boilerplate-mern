@@ -3,14 +3,13 @@ import { CommentDB } from './store/comment-db';
 
 export default class CommentUtil {
   public static convertCommentDBToComment(commentDb: CommentDB): Comment {
-    return new Comment(
-      commentDb._id.toString(),
-      commentDb.task.toString(),
-      commentDb.account.toString(),
-      commentDb.comment,
-      commentDb.active,
-      commentDb.createdAt,
-      commentDb.updatedAt
-    );
+    const comment = new Comment();
+    comment.id = commentDb._id.toString();
+    comment.task = commentDb.task;
+    comment.account = commentDb.account;
+    comment.comment = commentDb.comment;
+    comment.createdAt = commentDb.createdAt;
+    comment.updatedAt = commentDb.updatedAt;
+    return comment;
   }
 }

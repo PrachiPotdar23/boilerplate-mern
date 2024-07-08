@@ -1,33 +1,69 @@
-import { CreateCommentParams, EditCommentParams, Comment } from '../types';
+import {
+  CreateCommentParams,
+  DeleteCommentParams,
+  Comment,
+  CommentNotFoundError,
+  UpdateCommentParams,
+} from '../types';
+
 import CommentRepository from './store/comment-repository';
+import CommentReader from './comment-reader';
 import CommentUtil from './comment-util';
-import { Types } from 'mongoose';
 
 export default class CommentWriter {
-  public static async createComment(params: CreateCommentParams): Promise<Comment> {
-    const commentDb = await CommentRepository.create({
-      task: new Types.ObjectId(params.taskId),
-      account: new Types.ObjectId(params.accountId),
-      comment: params.comment,
-      active: true,
+  public static async createComment(
+    params: CreateCommentParams,
+  ): Promise<Comment> {
+    const createdComment = await (
+      await CommentRepository.create({
+        task: params.taskId,
+        account: params.accountId,
+        comment: params.comment,
+      })
+    ).populate({
+      path: 'account',
+      model: 'accounts',
     });
-    return CommentUtil.convertCommentDBToComment(commentDb);
+    return CommentUtil.convertCommentDBToComment(createdComment);
   }
 
-  public static async editComment(params: EditCommentParams): Promise<Comment | null> {
-    const commentDb = await CommentRepository.findByIdAndUpdate(
-      params.commentId,
-      { comment: params.comment },
-      { new: true }
-    );
-    return commentDb ? CommentUtil.convertCommentDBToComment(commentDb) : null;
+  public static async updateComment(
+    params: UpdateCommentParams,
+  ): Promise<Comment> {
+    const comment = await CommentRepository.findOneAndUpdate(
+      {
+        task: params.taskId,
+        account: params.accountId,
+        _id: params.commentId,
+      },
+      {
+        $set: {
+          comment: params.comment,
+        },
+      },
+      { new: true },
+    ).populate({
+      path: 'account',
+      model: 'accounts',
+    });
+
+    if (!comment) {
+      throw new CommentNotFoundError(params.commentId);
+    }
+
+    return CommentUtil.convertCommentDBToComment(comment);
   }
 
-  public static async deleteComment(commentId: string): Promise<void> {
-    await CommentRepository.findByIdAndUpdate(commentId, { active: false });
-  }
+  public static async deleteComment(
+    params: DeleteCommentParams,
+  ): Promise<void> {
+    const comment = await CommentReader.getCommentForAccount({
+      accountId: params.accountId,
+      commentId: params.commentId,
+    });
 
-  public static async replyToComment(params: CreateCommentParams): Promise<Comment> {
-    return this.createComment(params);
+    await CommentRepository.findOneAndDelete({
+      _id: comment.id,
+    });
   }
 }

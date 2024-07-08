@@ -3,6 +3,8 @@ import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import { AccountProvider, AuthProvider } from './contexts';
+import { CommentProvider } from './contexts/comments.provider';
+import { TaskProvider } from './contexts/task.provider';
 import { Config } from './helpers';
 import { AppRoutes } from './routes';
 import InspectLet from './vendor/inspectlet';
@@ -19,10 +21,16 @@ export default function App(): React.ReactElement {
   return (
     <AuthProvider>
       <AccountProvider>
-        <Toaster />
-        <Router>
-          <AppRoutes />
-        </Router>
+        <CommentProvider>
+          <TaskProvider>
+            {' '}
+            {/* Add this provider */}
+            <Toaster />
+            <Router>
+              <AppRoutes />
+            </Router>
+          </TaskProvider>
+        </CommentProvider>
       </AccountProvider>
     </AuthProvider>
   );

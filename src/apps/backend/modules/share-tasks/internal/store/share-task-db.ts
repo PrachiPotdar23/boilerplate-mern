@@ -1,6 +1,7 @@
-import { Schema, Types, Document } from 'mongoose';
+import { Schema, Types,  Document } from 'mongoose';
 
 export interface SharedTaskDB extends Document {
+  _id: Types.ObjectId;
   task: Types.ObjectId;
   account: Types.ObjectId;
 }
@@ -11,11 +12,13 @@ export const SharedTaskDbSchema: Schema<SharedTaskDB> = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Task',
       required: true,
+      
     },
     account: {
       type: Schema.Types.ObjectId,
       ref: 'Account',
       required: true,
+      
     },
   },
   {
@@ -28,6 +31,5 @@ export const SharedTaskDbSchema: Schema<SharedTaskDB> = new Schema(
 );
 
 SharedTaskDbSchema.index({ task: 1, account: 1 }, { unique: true });
-
 
 

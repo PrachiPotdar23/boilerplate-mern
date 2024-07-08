@@ -10,6 +10,6 @@ export default class ShareTaskRouter extends ApplicationRouter {
   
     router.use(accessAuthMiddleware); // Ensure middleware is correctly applied
     router.post('/', sharedTaskController.shareTask); // Ensure this matches the frontend call
-    router.get('/', sharedTaskController.getSharedTasks); // Ensure this matches the frontend call
+    router.get('/:accountId', sharedTaskController.getSharedTasks); // Ensure this matches the frontend call
   }
 }

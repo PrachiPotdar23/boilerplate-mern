@@ -1,16 +1,15 @@
-//backend\modules\share-tasks\types.ts
 import { ApplicationError } from '../application';
 import { HttpStatusCodes } from '../http';
 
 // Define the SharedTask class
 export class SharedTask {
   id: string;
-  task: string;
-  account: string;
-  title: string;
-  description: string;
-  username: string;
+  task: any;
+  account: any;
+
+
 }
+
 // Define the parameters for getting shared tasks
 export type GetSharedTasksParams = {
   accountId: string;

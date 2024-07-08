@@ -1,62 +1,66 @@
-import { Request, Response } from 'express';
-import CommentService from '../comment-service';
+import { applicationController, Request, Response } from '../../application';
 import { HttpStatusCodes } from '../../http';
-import { applicationController } from '../../application';
+import CommentService from '../comment-service';
+import {
+  Comment,
+  CreateCommentParams,
+  UpdateCommentParams,
+  DeleteCommentParams,
+  GetCommentParams,
+} from '../types';
+
 import { serializeCommentAsJSON } from './comment-serializer';
-import { CreateCommentParams, EditCommentParams, GetCommentsParams } from '../types';
 
 export class CommentController {
   createComment = applicationController(
-    async (req: Request<{}, {}, CreateCommentParams>, res: Response) => {
-      const comment = await CommentService.createComment({
+    async (req: Request<CreateCommentParams>, res: Response) => {
+      const comment: Comment = await CommentService.createComment({
         taskId: req.body.taskId,
-        accountId: req.body.accountId,
+        accountId: req.accountId,
         comment: req.body.comment,
       });
+      console.log("create",comment);
       const commentJSON = serializeCommentAsJSON(comment);
+
       res.status(HttpStatusCodes.CREATED).send(commentJSON);
     },
   );
 
-  editComment = applicationController(
-    async (req: Request<{}, {}, EditCommentParams>, res: Response) => {
-      const comment = await CommentService.editComment({
-        commentId: req.body.commentId,
-        comment: req.body.comment,
-      });
-      if (comment) {
-        const commentJSON = serializeCommentAsJSON(comment);
-        res.status(HttpStatusCodes.OK).send(commentJSON);
-      } else {
-        res.status(HttpStatusCodes.NOT_FOUND).send({ error: 'Comment not found' });
-      }
-    },
-  );
-
   deleteComment = applicationController(
-    async (req: Request<{ commentId: string }>, res: Response) => {
-      await CommentService.deleteComment(req.params.commentId);
+    async (req: Request<DeleteCommentParams>, res: Response) => {
+      await CommentService.deleteComment({
+        accountId: req.accountId,
+        commentId: req.params.id,
+      });
+
       res.status(HttpStatusCodes.NO_CONTENT).send();
     },
   );
 
   getComments = applicationController(
-    async (req: Request<GetCommentsParams>, res: Response) => {
-      const comments = await CommentService.getComments({ taskId: req.params.taskId });
-      const commentsJSON = comments.map(serializeCommentAsJSON);
+    async (req: Request<GetCommentParams>, res: Response) => {
+      const comments = await CommentService.getCommentsForTask(
+        req.params.taskId,
+      );
+      const commentsJSON = comments.map((comment) =>
+        serializeCommentAsJSON(comment),
+      );
+
       res.status(HttpStatusCodes.OK).send(commentsJSON);
     },
   );
 
-  replyToComment = applicationController(
-    async (req: Request<{}, {}, CreateCommentParams>, res: Response) => {
-      const comment = await CommentService.replyToComment({
+  updateComment = applicationController(
+    async (req: Request<UpdateCommentParams>, res: Response) => {
+      const updatedComment: Comment = await CommentService.updateComment({
+        accountId: req.accountId,
+        commentId: req.params.id,
         taskId: req.body.taskId,
-        accountId: req.body.accountId,
         comment: req.body.comment,
       });
-      const commentJSON = serializeCommentAsJSON(comment);
-      res.status(HttpStatusCodes.CREATED).send(commentJSON);
+      const commentJSON = serializeCommentAsJSON(updatedComment);
+
+      res.status(HttpStatusCodes.OK).send(commentJSON);
     },
   );
 }
