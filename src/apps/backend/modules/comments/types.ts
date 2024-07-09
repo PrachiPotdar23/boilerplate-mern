@@ -3,8 +3,8 @@ import { HttpStatusCodes } from '../http';
 
 export class Comment {
   id: string;
-  task: any;
-  account: any;
+  task: string;
+  account: string;
   comment: string;
   createdAt: Date;
   updatedAt: Date;
