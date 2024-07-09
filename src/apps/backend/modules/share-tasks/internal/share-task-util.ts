@@ -1,8 +1,9 @@
 import { SharedTask } from '../types';
 import { SharedTaskDB } from './store/share-task-db';
 import { Types } from 'mongoose';
-import { Task } from '../task/task'; 
-import { Account } from '../account/account'; 
+import { Task } from '../../task';
+import { Account } from '../../account'; 
+
 export default class SharedTaskUtil {
   public static convertSharedTaskDBToSharedTask(
     sharedTaskDb: SharedTaskDB,
@@ -14,32 +15,30 @@ export default class SharedTaskUtil {
     return sharedTask;
   }
 
-  private static convertTask(task: Types.ObjectId | Task | { [key: string]: any }): string | Task {
+  private static convertTask(task: Types.ObjectId | Task): string | Task {
     if (task instanceof Types.ObjectId) {
       return task.toString();
-    } else if (typeof task === 'object' && !(task instanceof Task)) {
+    } else {
       const convertedTask = new Task();
-      convertedTask.id = task.id || task._id;
+      convertedTask.id = task.id || task._id.toString();
       convertedTask.title = task.title;
       convertedTask.description = task.description;
 
       return convertedTask;
     }
-    return task as Task;
   }
 
-  private static convertAccount(account: Types.ObjectId | Account | { [key: string]: any }): string | Account {
+  private static convertAccount(account: Types.ObjectId | Account): string | Account {
     if (account instanceof Types.ObjectId) {
       return account.toString();
-    } else if (typeof account === 'object' && !(account instanceof Account)) {
+    } else {
       const convertedAccount = new Account();
-      convertedAccount.id = account.id || account._id;
+      convertedAccount.id = account.id || account._id.toString();
       convertedAccount.firstName = account.firstName;
       convertedAccount.lastName = account.lastName;
       convertedAccount.username = account.username;
 
       return convertedAccount;
     }
-    return account as Account;
   }
 }
