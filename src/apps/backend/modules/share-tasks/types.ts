@@ -4,8 +4,8 @@ import { HttpStatusCodes } from '../http';
 // Define the SharedTask class
 export class SharedTask {
   id: string;
-  task: any;
-  account: any;
+  task: string;
+  account: string;
 
 
 }
