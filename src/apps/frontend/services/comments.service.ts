@@ -37,7 +37,7 @@ export default class CommentsService extends APIService {
   updateComment = async (commentId: string, comment: string): Promise<ApiResponse<Comment>> => {
     try {
       const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
-      const response = await this.apiClient.put(`/comments/${commentId}`, { comment }, {
+      const response = await this.apiClient.put(`/tasks/${taskId}/comments/${commentId}`, { comment }, {
         headers: {
           Authorization: `Bearer ${userAccessToken.token}`,
         },
@@ -51,7 +51,7 @@ export default class CommentsService extends APIService {
   deleteComment = async (commentId: string): Promise<ApiResponse<void>> => {
     try {
       const userAccessToken = JSON.parse(localStorage.getItem('access-token')) as AccessToken;
-      await this.apiClient.delete(`/comments/${commentId}`, {
+      await this.apiClient.delete(`/tasks/${taskId}/comments/${commentId}`, {
         headers: {
           Authorization: `Bearer ${userAccessToken.token}`,
         },
