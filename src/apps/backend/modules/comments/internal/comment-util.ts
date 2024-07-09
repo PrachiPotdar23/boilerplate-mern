@@ -1,8 +1,8 @@
 import { Comment } from '../types';
 import { CommentDB } from './store/comment-db';
 import { Types } from 'mongoose';
-import { Task } from '../tasks/task'; // Assuming Task is imported from its module
-import { Account } from '../account/account'; // Assuming Account is imported from its module
+import { Task } from '../tasks/task'; 
+import { Account } from '../account/account'; 
 
 export default class CommentUtil {
   public static convertCommentDBToComment(commentDb: CommentDB): Comment {
