@@ -6,7 +6,7 @@ export default class ShareTaskServer extends ApplicationServer {
     const { server } = this;
     const shareRouter = new ShareTaskRouter();
 
-    server.use('/tasks/shared-tasks', shareRouter.router); // Ensure /api is prefixed
+    server.use('/shared-tasks', shareRouter.router); // Ensure /api is prefixed
   }
 }
 export { ShareTaskServer }
