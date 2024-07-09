@@ -7,6 +7,6 @@ export default class CommentServer extends ApplicationServer {
     const { server } = this;
     const router = new CommentRouter();
 
-    server.use('/comments', router.router);
+    server.use('/tasks/:taskId/comments', router.router);
   }
 }
